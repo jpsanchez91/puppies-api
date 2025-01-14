@@ -15,7 +15,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("/post")
 @PreAuthorize("isAuthenticated()")
 public class PostController {
 
@@ -60,5 +60,14 @@ public class PostController {
     })
     public List<PostDTO> userPosts(@AuthenticationPrincipal String uuid) {
         return postService.userPosts(uuid);
+    }
+
+    @GetMapping("/user/liked")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully fetched user liked posts"),
+            @ApiResponse(responseCode = "404", description = "User liked posts not found")
+    })
+    public List<PostDTO> fetchUserLikedPost(@AuthenticationPrincipal String uuid) {
+        return postService.fetchUserLikedPost(uuid);
     }
 }

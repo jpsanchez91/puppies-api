@@ -21,6 +21,7 @@ public class FilterConfiguration {
 
         registrationBean.setFilter(jwtRequestFilter);
         registrationBean.addUrlPatterns("/post/*");
+        registrationBean.addUrlPatterns("/like/*");
         registrationBean.setOrder(Ordered.LOWEST_PRECEDENCE - 5);
 
         return registrationBean;

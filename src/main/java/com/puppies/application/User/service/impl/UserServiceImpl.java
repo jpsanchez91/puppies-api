@@ -6,7 +6,9 @@ import com.puppies.infrastructure.exception.ConflictException;
 import com.puppies.infrastructure.persistence.User.mapper.CreateUserMapper;
 import com.puppies.infrastructure.persistence.User.repository.UserRepository;
 import com.puppies.presentation.rest.Post.dto.CreateUserDTO;
+import com.puppies.presentation.rest.User.dto.UserDto;
 import org.springframework.stereotype.Service;
+import org.webjars.NotFoundException;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -36,6 +38,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> findById(String id) {
         return userRepository.findById(UUID.fromString(id));
+    }
+
+    @Override
+    public UserDto fetchUserProfile(String userId) {
+        return createUserMapper.toUserDto(findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found.")));
     }
 
 }

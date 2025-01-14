@@ -3,6 +3,7 @@ package com.puppies.application.Post.service.impl;
 import com.puppies.application.Post.service.PostService;
 import com.puppies.application.User.service.UserService;
 import com.puppies.domain.Post.entity.Post;
+import com.puppies.infrastructure.persistence.Like.repository.LikeRepository;
 import com.puppies.infrastructure.persistence.Post.mapper.CreatePostMapper;
 import com.puppies.infrastructure.persistence.Post.mapper.PostMapper;
 import com.puppies.infrastructure.persistence.Post.repository.PostRepository;
@@ -22,12 +23,14 @@ public class PostServiceImpl implements PostService {
     private final CreatePostMapper createPostMapper;
     private final UserService userService;
     private final PostMapper postMapper;
+    private final LikeRepository likeRepository;
 
-    public PostServiceImpl(PostRepository postRepository, CreatePostMapper createPostMapper, UserService userService, PostMapper postMapper) {
+    public PostServiceImpl(PostRepository postRepository, CreatePostMapper createPostMapper, UserService userService, PostMapper postMapper, LikeRepository likeRepository) {
         this.postRepository = postRepository;
         this.createPostMapper = createPostMapper;
         this.userService = userService;
         this.postMapper = postMapper;
+        this.likeRepository = likeRepository;
     }
 
 
@@ -64,5 +67,15 @@ public class PostServiceImpl implements PostService {
 
         return postRepository.findByUserOrderByDateDesc(user).stream()
                 .map(postMapper::toPostDTO).toList();
+    }
+
+    @Override
+    public List<PostDTO> fetchUserLikedPost(String userUUID) {
+        var user = userService.findById(userUUID)
+                .orElseThrow(() -> new NotFoundException("user not found"));
+
+        return likeRepository.findByUser(user).stream().map(
+                like -> postMapper.toPostDTO(like.getPost())
+        ).toList();
     }
 }

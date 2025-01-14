@@ -12,4 +12,5 @@ public interface PostService {
     PostDTO findById(String id);
     List<PostDTO> fetchUserFeed(String userUUID);
     List<PostDTO> userPosts(String userUUID);
+    List<PostDTO> fetchUserLikedPost(String userUUID);
 }

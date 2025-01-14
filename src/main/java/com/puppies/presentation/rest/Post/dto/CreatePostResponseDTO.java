@@ -1,5 +1,6 @@
 package com.puppies.presentation.rest.Post.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ public class CreatePostResponseDTO {
 
     private String content;
 
+    @JsonFormat(pattern = "MM/dd/yyyy hh:mm:ss")
     private LocalDateTime date;
 
     private String userId;
