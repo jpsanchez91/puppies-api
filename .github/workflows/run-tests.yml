@@ -19,8 +19,8 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v2
         with:
+          distribution: 'temurin'
           java-version: '21'
-          distribution: 'amazon'
 
       - name: Cache Maven dependencies
         uses: actions/cache@v2
