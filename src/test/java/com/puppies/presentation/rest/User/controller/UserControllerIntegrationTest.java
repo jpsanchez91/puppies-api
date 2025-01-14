@@ -1,13 +1,20 @@
 package com.puppies.presentation.rest.User.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.puppies.TestcontainersConfiguration;
+import com.puppies.presentation.rest.Post.controller.UserController;
 import com.puppies.presentation.rest.Post.dto.AuthenticateUserDTO;
 import com.puppies.presentation.rest.Post.dto.CreateUserDTO;
+import com.puppies.presentation.rest.User.controller.fixture.UserFixture;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +22,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
+@Import(TestcontainersConfiguration.class)
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 class UserControllerIntegrationTest {
 
     @Autowired
@@ -28,11 +36,11 @@ class UserControllerIntegrationTest {
 
     @Test
     void createUser_shouldReturn201() throws Exception {
-        String newUser = "{ \"email\": \"dave@example.com\", \"password\": \"password\", \"name\": \"Dave\" }";
+        CreateUserDTO createUserDTO = UserFixture.createRandomUser();
 
         mockMvc.perform(post("/user/register")
                         .contentType("application/json")
-                        .content(newUser))
+                        .content(objectMapper.writeValueAsString(createUserDTO)))
                 .andExpect(status().isCreated());
     }
 
@@ -47,19 +55,15 @@ class UserControllerIntegrationTest {
 
     @Test
     void authenticateUser_shouldReturn200() throws Exception {
-        CreateUserDTO createUserDTO = new CreateUserDTO();
-        createUserDTO.setName("Bob");
-        createUserDTO.setEmail("bob@example.com");
-        createUserDTO.setPassword("password");
-
+        CreateUserDTO createUserDTO = UserFixture.createRandomUser();
         mockMvc.perform(post("/user/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createUserDTO)))
                 .andExpect(status().isCreated());
 
         AuthenticateUserDTO authenticateUserDTO = new AuthenticateUserDTO();
-        authenticateUserDTO.setEmail("bob@example.com");
-        authenticateUserDTO.setPassword("password");
+        authenticateUserDTO.setEmail(createUserDTO.getEmail());
+        authenticateUserDTO.setPassword(createUserDTO.getPassword());
 
         mockMvc.perform(post("/user/login")
                         .contentType(MediaType.APPLICATION_JSON)

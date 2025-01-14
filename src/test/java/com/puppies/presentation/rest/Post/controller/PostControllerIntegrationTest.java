@@ -1,25 +1,35 @@
 package com.puppies.presentation.rest.Post.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.puppies.TestcontainersConfiguration;
 import com.puppies.presentation.rest.Like.dto.CreateLikeDTO;
+import com.puppies.presentation.rest.Post.controller.fixture.PostFixture;
 import com.puppies.presentation.rest.Post.dto.CreatePostDTO;
 import com.puppies.presentation.rest.Post.dto.CreateUserDTO;
 import com.puppies.presentation.rest.Post.dto.AuthenticateUserDTO;
+import com.puppies.presentation.rest.User.controller.fixture.UserFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Import(TestcontainersConfiguration.class)
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 public class PostControllerIntegrationTest {
 
     @Autowired
@@ -34,22 +44,19 @@ public class PostControllerIntegrationTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        CreateUserDTO userDTO = new CreateUserDTO();
-        userDTO.setName("Alice");
-        userDTO.setEmail("alice@example.com");
-        userDTO.setPassword("password");
+        CreateUserDTO createUserDTO = UserFixture.createRandomUser();
 
         userId = mockMvc.perform(post("/user/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userDTO)))
+                        .content(objectMapper.writeValueAsString(createUserDTO)))
                 .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
         AuthenticateUserDTO authDTO = new AuthenticateUserDTO();
-        authDTO.setEmail("alice@example.com");
-        authDTO.setPassword("password");
+        authDTO.setEmail(createUserDTO.getEmail());
+        authDTO.setPassword(createUserDTO.getPassword());
 
         String response = mockMvc.perform(post("/user/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -64,9 +71,7 @@ public class PostControllerIntegrationTest {
 
     @Test
     void createPost_shouldReturn201() throws Exception {
-        CreatePostDTO postDTO = new CreatePostDTO();
-        postDTO.setContent("This is a test post");
-        postDTO.setImage("base64:dsdsdsdasdsasd");
+        CreatePostDTO postDTO = PostFixture.createRandomPost();
 
         mockMvc.perform(post("/post/create")
                         .header("Authorization", "Bearer " + jwtToken)
@@ -77,9 +82,7 @@ public class PostControllerIntegrationTest {
 
     @Test
     void findById_shouldReturn200() throws Exception {
-        CreatePostDTO postDTO = new CreatePostDTO();
-        postDTO.setContent("This is another test post");
-        postDTO.setImage("base64:dsdsdsdasdsasd");
+        CreatePostDTO postDTO = PostFixture.createRandomPost();
 
         String postResponse = mockMvc.perform(post("/post/create")
                         .header("Authorization", "Bearer " + jwtToken)
@@ -95,7 +98,7 @@ public class PostControllerIntegrationTest {
         mockMvc.perform(get("/post/{id}", postId)
                         .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("This is another test post"));
+                .andExpect(jsonPath("$.content").value(postDTO.getContent()));
     }
 
     @Test
@@ -104,15 +107,13 @@ public class PostControllerIntegrationTest {
         mockMvc.perform(get("/post/feed")
                         .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(3))
+                .andExpect(jsonPath("$.length()").value(4))
                 .andExpect(jsonPath("$[*].userId").value(org.hamcrest.Matchers.not(userId)));
     }
 
     @Test
     void userPosts_shouldReturn200() throws Exception {
-        CreatePostDTO postDTO = new CreatePostDTO();
-        postDTO.setContent("This is a test post");
-        postDTO.setImage("base64:dsdsdsdasdsasd");
+        CreatePostDTO postDTO = PostFixture.createRandomPost();
 
         mockMvc.perform(post("/post/create")
                         .header("Authorization", "Bearer " + jwtToken)
@@ -129,9 +130,7 @@ public class PostControllerIntegrationTest {
 
     @Test
     void fetchUserLikedPost_shouldReturn200() throws Exception {
-        CreatePostDTO postDTO = new CreatePostDTO();
-        postDTO.setContent("This is a test post");
-        postDTO.setImage("base64:dsdsdsdasdsasd");
+        CreatePostDTO postDTO = PostFixture.createRandomPost();
 
         var result = mockMvc.perform(post("/post/create")
                         .header("Authorization", "Bearer " + jwtToken)
