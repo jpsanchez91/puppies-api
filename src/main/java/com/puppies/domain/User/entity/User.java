@@ -1,13 +1,16 @@
-package com.puppies.application.User.entity;
+package com.puppies.domain.User.entity;
 
+import com.puppies.domain.Post.entity.Post;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Data
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,8 +26,8 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Post> posts;
 
-    @OneToMany(mappedBy = "user")
-    private List<Like> likes;
+    //@OneToMany(mappedBy = "user")
+    //private List<Like> likes;
 
     public void setPassword(String password) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
