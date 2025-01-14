@@ -2,7 +2,7 @@
 
 This project is the back-end API for a social network for puppies. It provides various endpoints for users to interact and share their experiences about their loved pets' life.
 
-![Build Status](https://img.shields.io/github/workflow/status/jpsanchez91/puppies-api/Run%20Tests?label=tests)
+![Build Status](https://img.shields.io/github/actions/workflow/status/jpsanchez91/puppies-api/run-tests.yml?branch=main)
 
 
 ## API Documentation
