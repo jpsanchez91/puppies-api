@@ -7,6 +7,8 @@ import com.puppies.presentation.rest.Post.dto.PostDTO;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -31,8 +33,8 @@ public class PostController {
             @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden"),
             @ApiResponse(responseCode = "404", description = "The user is not found")
     })
-    public CreatePostResponseDTO createPost(@RequestBody @Valid CreatePostDTO dto, @AuthenticationPrincipal String uuid) {
-        return postService.createPost(dto, uuid);
+    public ResponseEntity<CreatePostResponseDTO> createPost(@RequestBody @Valid CreatePostDTO dto, @AuthenticationPrincipal String uuid) {
+        return new ResponseEntity<>(postService.createPost(dto, uuid), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")

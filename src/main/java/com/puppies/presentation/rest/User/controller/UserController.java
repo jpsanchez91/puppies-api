@@ -32,9 +32,9 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Invalid User object"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public ResponseEntity<?> createUser(@RequestBody @Valid CreateUserDTO userDTO) {
-        userService.createUser(userDTO);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<String> createUser(@RequestBody @Valid CreateUserDTO userDTO) {
+        var user = userService.createUser(userDTO);
+        return new ResponseEntity<>(user.getId().toString(), HttpStatus.CREATED);
     }
 
     @GetMapping("/{uuid}/profile")
